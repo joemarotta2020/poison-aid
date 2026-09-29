@@ -34,6 +34,7 @@ add_library(JM_Poison SHARED
 
 target_precompile_headers(JM_Poison PRIVATE src/PCH.h)
 target_include_directories(JM_Poison PRIVATE src)
+target_compile_definitions(JM_Poison PRIVATE NOMINMAX WIN32_LEAN_AND_MEAN)
 
 target_link_libraries(JM_Poison
     PRIVATE

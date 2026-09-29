@@ -1,17 +1,11 @@
 {
-    "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg/master/scripts/vcpkg.schema.json",
-    "name": "poison-aid",
-    "version-string": "1.0.0",
-    "port-version": 0,
-    "description": "An SKSE plugin that provides tools and utilities for poison use.",
-    "license": "GPL-3.0-or-later",
-    "dependencies": [
-    "commonlibsse-ng",
-    "magic-enum",
-    "xbyak",
-    "directxmath",
-    "directxtk",
-    "openvr",
-    "simpleini"
-    ]
+  "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg/master/scripts/vcpkg.schema.json",
+  "name": "jm-poison",
+  "version-string": "0.1.0",
+  "description": "Configurable poison dose progression for Skyrim SE 1.5.97",
+  "license": "GPL-3.0-or-later",
+  "dependencies": [
+    "commonlibsse-ng-se",
+    "xbyak"
+  ]
 }

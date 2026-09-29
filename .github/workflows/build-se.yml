@@ -1,0 +1,74 @@
+name: Build JM Poison SE
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-se:
+    name: Skyrim SE 1.5.97
+    runs-on: windows-2022
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up MSVC x64
+        uses: TheMrMilchmann/setup-msvc-dev@v4.0.0
+        with:
+          arch: x64
+
+      - name: Bootstrap vcpkg
+        shell: pwsh
+        run: |
+          git clone https://github.com/microsoft/vcpkg.git C:\\vcpkg
+          C:\\vcpkg\\bootstrap-vcpkg.bat -disableMetrics
+
+      - name: Configure Skyrim SE release
+        shell: pwsh
+        run: |
+          cmake -S . -B build -G "Visual Studio 17 2022" -A x64 `
+            -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake `
+            -DVCPKG_TARGET_TRIPLET=x64-windows-static-md `
+            -DENABLE_SKYRIM_SE=ON `
+            -DENABLE_SKYRIM_AE=OFF `
+            -DENABLE_SKYRIM_VR=OFF `
+            -DSKSE_SUPPORT_XBYAK=ON
+
+      - name: Build Skyrim SE release
+        shell: pwsh
+        run: |
+          cmake --build build --config Release --target JM_Poison -- /m
+
+      - name: Stage build artifact
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          New-Item -ItemType Directory -Force -Path artifact\\SKSE\\Plugins | Out-Null
+
+          $dll = Get-ChildItem -Path build -Recurse -File -Filter 'JM_Poison.dll' | Select-Object -First 1
+          if (-not $dll) { throw 'JM_Poison.dll was not produced.' }
+          Copy-Item $dll.FullName artifact\\SKSE\\Plugins\\JM_Poison.dll
+
+          $pdb = Get-ChildItem -Path build -Recurse -File -Filter 'JM_Poison.pdb' | Select-Object -First 1
+          if ($pdb) { Copy-Item $pdb.FullName artifact\\SKSE\\Plugins\\JM_Poison.pdb }
+
+          Copy-Item JM_Poison.ini artifact\\SKSE\\Plugins\\JM_Poison.ini
+          "Source commit: $env:GITHUB_SHA" | Set-Content artifact\\BUILD_INFO.txt
+          "Target: Skyrim Special Edition 1.5.97" | Add-Content artifact\\BUILD_INFO.txt
+          Get-ChildItem artifact -Recurse
+
+      - name: Upload Skyrim SE build
+        uses: actions/upload-artifact@v4
+        with:
+          name: JM_Poison-SE-1.5.97
+          path: artifact/
+          if-no-files-found: error
+          retention-days: 30

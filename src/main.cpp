@@ -175,12 +175,12 @@ namespace JM::Poison
         }
         if (auto v = IniValue(ini, "General", "MinimumDoses")) {
             if (auto parsed = ParseInt(*v)) {
-                g_settings.minimumDoses = std::max(1, *parsed);
+                g_settings.minimumDoses = (std::max)(1, *parsed);
             }
         }
         if (auto v = IniValue(ini, "General", "MaximumFiniteDoses")) {
             if (auto parsed = ParseInt(*v)) {
-                g_settings.maximumFiniteDoses = std::max(g_settings.minimumDoses, *parsed);
+                g_settings.maximumFiniteDoses = (std::max)(g_settings.minimumDoses, *parsed);
             }
         }
 
@@ -289,7 +289,7 @@ namespace JM::Poison
         std::int32_t best = 0;
         for (const auto& rule : g_settings.perkRules) {
             if (rule.perk && player->HasPerk(rule.perk)) {
-                best = std::max(best, rule.bonus);
+                best = (std::max)(best, rule.bonus);
             }
         }
         return best;
@@ -298,10 +298,10 @@ namespace JM::Poison
     std::int32_t CalculateFiniteDoses(RE::PlayerCharacter* player, float vanillaDose)
     {
         std::int32_t base = g_settings.includeVanillaDose ?
-            std::max(1, static_cast<std::int32_t>(std::lround(vanillaDose))) : 1;
+            (std::max)(1, static_cast<std::int32_t>(std::lround(vanillaDose))) : 1;
 
         const auto result = base + AlchemyBonus(player) + PerkBonus(player);
-        return std::clamp(result, g_settings.minimumDoses, g_settings.maximumFiniteDoses);
+        return (std::clamp)(result, g_settings.minimumDoses, g_settings.maximumFiniteDoses);
     }
 
     RE::ExtraPoison* GetExtraPoison(RE::InventoryEntryData* item)
@@ -326,7 +326,7 @@ namespace JM::Poison
             logger::info("ApplyDoseHook installed");
         }
 
-        static void Thunk(RE::PerkEntryPoint entryPoint, RE::PlayerCharacter* player,
+        static void Thunk(RE::BGSEntryPoint::ENTRY_POINT entryPoint, RE::PlayerCharacter* player,
             RE::TESObjectWEAP* weapon, RE::AlchemyItem* poison, float& out)
         {
             _original(entryPoint, player, weapon, poison, out);

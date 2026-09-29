@@ -6,16 +6,42 @@ project(
     DESCRIPTION "Configurable poison dose progression for Skyrim SE 1.5.97"
     LANGUAGES CXX)
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_INTERPROCEDURAL_OPTIMIZATION ON)
 
-find_package(CommonLibSSE CONFIG REQUIRED)
+include(FetchContent)
 
-add_library(${PROJECT_NAME} SHARED src/main.cpp)
-target_commonlibsse_properties(${PROJECT_NAME})
-target_precompile_headers(${PROJECT_NAME} PRIVATE src/PCH.h)
+# Build CommonLibSSE-NG from source, SE-only, with Xbyak support.
+set(ENABLE_SKYRIM_SE ON CACHE BOOL "" FORCE)
+set(ENABLE_SKYRIM_AE OFF CACHE BOOL "" FORCE)
+set(ENABLE_SKYRIM_VR OFF CACHE BOOL "" FORCE)
+set(SKSE_SUPPORT_XBYAK ON CACHE BOOL "" FORCE)
+set(BUILD_TESTS OFF CACHE BOOL "" FORCE)
 
-target_include_directories(${PROJECT_NAME} PRIVATE src)
+FetchContent_Declare(
+    CommonLibSSE
+    GIT_REPOSITORY https://github.com/CharmedBaryon/CommonLibSSE-NG.git
+    GIT_TAG main
+    GIT_SHALLOW TRUE
+)
 
-install(TARGETS ${PROJECT_NAME} DESTINATION SKSE/Plugins)
+FetchContent_MakeAvailable(CommonLibSSE)
+
+add_library(JM_Poison SHARED
+    src/main.cpp
+)
+
+target_precompile_headers(JM_Poison PRIVATE src/PCH.h)
+target_include_directories(JM_Poison PRIVATE src)
+
+target_link_libraries(JM_Poison
+    PRIVATE
+        CommonLibSSE::CommonLibSSE
+)
+
+set_target_properties(JM_Poison PROPERTIES
+    OUTPUT_NAME "JM_Poison"
+)
+
+install(TARGETS JM_Poison DESTINATION SKSE/Plugins)

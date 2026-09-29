@@ -5,7 +5,7 @@
   "description": "Configurable poison dose progression for Skyrim SE 1.5.97",
   "license": "GPL-3.0-or-later",
   "dependencies": [
-    "commonlibsse-ng-se",
+    "commonlibsse-ng",
     "xbyak"
   ]
 }

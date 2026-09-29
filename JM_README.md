@@ -14,3 +14,6 @@ Default integration uses the existing rank perks in `JM_Sithis_Overhaul.esp`:
 All thresholds, bonuses, perk FormIDs, and the finite cap are configurable in `JM_Poison.ini`.
 
 This fork retains the upstream GPL-3.0-or-later license.
+
+
+Build note: CI targets Skyrim SE 1.5.97 and current CommonLibSSE-NG.

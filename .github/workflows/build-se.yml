@@ -25,24 +25,20 @@ jobs:
         with:
           arch: x64
 
-      - name: Bootstrap vcpkg
+      - name: Prepare vcpkg
         shell: pwsh
         run: |
-          git clone https://github.com/microsoft/vcpkg.git C:\\vcpkg
-          C:\\vcpkg\\bootstrap-vcpkg.bat -disableMetrics
+          C:\vcpkg\bootstrap-vcpkg.bat -disableMetrics
+          C:\vcpkg\vcpkg.exe version
 
-      - name: Configure Skyrim SE release
+      - name: Configure release
         shell: pwsh
         run: |
           cmake -S . -B build -G "Visual Studio 17 2022" -A x64 `
             -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake `
-            -DVCPKG_TARGET_TRIPLET=x64-windows-static-md `
-            -DENABLE_SKYRIM_SE=ON `
-            -DENABLE_SKYRIM_AE=OFF `
-            -DENABLE_SKYRIM_VR=OFF `
-            -DSKSE_SUPPORT_XBYAK=ON
+            -DVCPKG_TARGET_TRIPLET=x64-windows-static-md
 
-      - name: Build Skyrim SE release
+      - name: Build release
         shell: pwsh
         run: |
           cmake --build build --config Release --target JM_Poison -- /m
@@ -51,18 +47,18 @@ jobs:
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
-          New-Item -ItemType Directory -Force -Path artifact\\SKSE\\Plugins | Out-Null
+          New-Item -ItemType Directory -Force -Path artifact\SKSE\Plugins | Out-Null
 
           $dll = Get-ChildItem -Path build -Recurse -File -Filter 'JM_Poison.dll' | Select-Object -First 1
           if (-not $dll) { throw 'JM_Poison.dll was not produced.' }
-          Copy-Item $dll.FullName artifact\\SKSE\\Plugins\\JM_Poison.dll
+          Copy-Item $dll.FullName artifact\SKSE\Plugins\JM_Poison.dll
 
           $pdb = Get-ChildItem -Path build -Recurse -File -Filter 'JM_Poison.pdb' | Select-Object -First 1
-          if ($pdb) { Copy-Item $pdb.FullName artifact\\SKSE\\Plugins\\JM_Poison.pdb }
+          if ($pdb) { Copy-Item $pdb.FullName artifact\SKSE\Plugins\JM_Poison.pdb }
 
-          Copy-Item JM_Poison.ini artifact\\SKSE\\Plugins\\JM_Poison.ini
-          "Source commit: $env:GITHUB_SHA" | Set-Content artifact\\BUILD_INFO.txt
-          "Target: Skyrim Special Edition 1.5.97" | Add-Content artifact\\BUILD_INFO.txt
+          Copy-Item JM_Poison.ini artifact\SKSE\Plugins\JM_Poison.ini
+          "Source commit: $env:GITHUB_SHA" | Set-Content artifact\BUILD_INFO.txt
+          "Runtime guard: Skyrim SE 1.5.97 only" | Add-Content artifact\BUILD_INFO.txt
           Get-ChildItem artifact -Recurse
 
       - name: Upload Skyrim SE build

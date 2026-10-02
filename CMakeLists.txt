@@ -27,6 +27,7 @@ FetchContent_Declare(
 )
 
 FetchContent_MakeAvailable(CommonLibSSE)
+include("${commonlibsse_SOURCE_DIR}/cmake/CommonLibSSE.cmake")
 
 add_commonlibsse_plugin(JM_Poison
     NAME "JM_Poison"

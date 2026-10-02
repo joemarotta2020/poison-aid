@@ -28,21 +28,16 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(CommonLibSSE)
 
-add_library(JM_Poison SHARED
-    src/main.cpp
+add_commonlibsse_plugin(JM_Poison
+    NAME "JM_Poison"
+    VERSION ${PROJECT_VERSION}
+    COMPATIBLE_RUNTIMES "1.5.97"
+    SOURCES
+        src/main.cpp
 )
 
 target_precompile_headers(JM_Poison PRIVATE src/PCH.h)
 target_include_directories(JM_Poison PRIVATE src)
 target_compile_definitions(JM_Poison PRIVATE NOMINMAX WIN32_LEAN_AND_MEAN)
-
-target_link_libraries(JM_Poison
-    PRIVATE
-        CommonLibSSE::CommonLibSSE
-)
-
-set_target_properties(JM_Poison PROPERTIES
-    OUTPUT_NAME "JM_Poison"
-)
 
 install(TARGETS JM_Poison DESTINATION SKSE/Plugins)

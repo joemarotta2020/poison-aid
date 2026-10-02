@@ -43,6 +43,20 @@ jobs:
         run: |
           cmake --build build --config Release --target JM_Poison -- /m
 
+      - name: Verify SKSE plugin exports
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $dll = Get-ChildItem -Path build -Recurse -File -Filter 'JM_Poison.dll' | Select-Object -First 1
+          if (-not $dll) { throw 'JM_Poison.dll was not produced.' }
+          $exports = (& dumpbin /nologo /exports $dll.FullName) -join "`n"
+          $exports | Write-Host
+          foreach ($required in @('SKSEPlugin_Load', 'SKSEPlugin_Query', 'SKSEPlugin_Version')) {
+            if ($exports -notmatch [regex]::Escape($required)) {
+              throw "Missing required SKSE export: $required"
+            }
+          }
+
       - name: Stage build artifact
         shell: pwsh
         run: |
